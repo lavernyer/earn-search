@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 const { log } = console;
 
 const searchQuery = 'David';
-const searchPageUrl = 'https://21.co/search/';
+const searchPageUrl = 'https://earn.com/search/';
 
 (async () => {
   log('Openning browser...');
