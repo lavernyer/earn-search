@@ -1,10 +1,10 @@
 {
-  "name": "earn",
+  "name": "earn.com",
   "version": "1.0.0",
   "description": "",
-  "main": "earn.js",
+  "main": "main.js",
   "scripts": {
-    "test": "test"
+    "test-local": "APIFY_DEV_KEY_VALUE_STORE_DIR=./kv-store-dev/ node main.js"
   },
   "repository": {
     "type": "git",
