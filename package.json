@@ -1,0 +1,31 @@
+{
+  "name": "earn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "earn.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juansgaitan/21-search.git"
+  },
+  "keywords": [
+    "earn",
+    "search",
+    "act",
+    "crawl",
+    "extract"
+  ],
+  "author": "Juan Sebastián Gaitán Villamizar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/juansgaitan/21-search/issues"
+  },
+  "homepage": "https://github.com/juansgaitan/21-search#readme",
+  "dependencies": {
+    "apify": "^0.4.33",
+    "puppeteer": "^0.12.0",
+    "type-check": "^0.3.2"
+  }
+}
