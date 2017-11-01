@@ -51,18 +51,17 @@ Apify.main(async () => {
     await page.evaluate(async () => (
       new Promise((resolve, reject) => {
         try {
-          const maxScroll = Number.MAX_SAFE_INTEGER;
           let lastScroll = 0;
           const interval = setInterval(() => {
             window.scrollBy(0, document.body.offsetHeight);
             const { scrollTop } = document.documentElement;
-            if (scrollTop === maxScroll || scrollTop === lastScroll) {
+            if (scrollTop === lastScroll) {
               clearInterval(interval);
               resolve();
             } else {
               lastScroll = scrollTop;
             }
-          }, 1000);
+          }, 3000);
         } catch (error) {
           reject(error);
         }
@@ -71,11 +70,11 @@ Apify.main(async () => {
   } catch (error) {
     log('Error while scrolling:', error);
   }
-  log('Scrolling finished');
+  log('Scrolling finished.');
 
   await page.waitForSelector('.list-search-results');
 
-  // Extract user data.
+  log('Extracting user data...');
   const allUserResults = await page.evaluate(() => {
     const allUsers = document.querySelectorAll('.landing-vip.visible .content');
     return Array.from(allUsers).map((user) => {
@@ -95,6 +94,7 @@ Apify.main(async () => {
       return result;
     });
   });
+
   log('Closing page...');
   await page.close().catch(error => log(`Error closing page: ${error}.`));
 
