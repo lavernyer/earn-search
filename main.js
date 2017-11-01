@@ -31,6 +31,8 @@ Apify.main(async () => {
   log('Openning new page...');
   const page = await browser.newPage();
 
+  await page.setViewport({ width: 1000, height: 1000 });
+
   log(`Going to ${searchPageUrl}`);
   await page.goto(searchPageUrl, { waitUntil: 'networkidle', timeout: 0 });
 
