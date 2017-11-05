@@ -22,10 +22,11 @@ async function scrollDown(page, userCount) {
             const users = document.querySelectorAll('.landing-vip');
             const currentCount = users.length;
             if (currentCount < maxCount && maxIntervals > 0 && repetitiveCount > 0) {
-              console.log('Current count:', currentCount);
               if (previousCount === currentCount) {
+                console.log('Countdown if over: ', repetitiveCount);
                 repetitiveCount -= 1;
               } else {
+                console.log('Current count:', currentCount);
                 repetitiveCount = 100;
               }
               maxIntervals -= 1;
