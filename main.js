@@ -8,6 +8,36 @@ const INPUT_TYPE = `{
   searchQuery: String
 }`;
 
+async function scrollDown(page, userCount) {
+  try {
+    await page.evaluate(async maxCount => (
+      new Promise((resolve, reject) => {
+        try {
+          let maxIntervals = 1000;
+          const interval = setInterval(() => {
+            window.scrollBy(0, document.body.offsetHeight - 100);
+            const users = document.querySelectorAll('.landing-vip');
+            const currentCount = users.length;
+            if (currentCount >= maxCount || maxIntervals <= 0) {
+              clearInterval(interval);
+              resolve();
+            } else {
+              console.log(currentCount);
+              maxIntervals -= 1;
+            }
+          }, 2000);
+        } catch (error) {
+          reject(error);
+        }
+      })
+    ), userCount);
+  } catch (error) {
+    log('Error while scrolling:', error);
+  } finally {
+    log('Scrolling finished.');
+  }
+}
+
 Apify.main(async () => {
   const input = await Apify.getValue('INPUT');
   if (!typeCheck(INPUT_TYPE, input)) {
@@ -23,7 +53,7 @@ Apify.main(async () => {
   log('Openning browser...');
   const browser = await puppeteer.launch({
     args: ['--no-sandbox'],
-    headless: !!process.env.APIFY_HEADLESS,
+    headless: true,
     timeout: 0,
   });
   log('New browser window opened.');
@@ -31,7 +61,15 @@ Apify.main(async () => {
   log('Openning new page...');
   const page = await browser.newPage();
 
-  await page.setViewport({ width: 1000, height: 1000 });
+  page.on('request', (request) => {
+    if (request.method === 'OPTIONS') {
+      log(request.url);
+    }
+  });
+
+  page.on('console', (message) => {
+    log(message.text);
+  });
 
   log(`Going to ${searchPageUrl}`);
   await page.goto(searchPageUrl, { waitUntil: 'networkidle', timeout: 0 });
@@ -42,43 +80,34 @@ Apify.main(async () => {
 
   await page.waitForSelector('.list-search-results');
 
-  page.on('request', (request) => {
-    if (request.method === 'OPTIONS') {
-      log(request.url);
-    }
+  const maxCount = await page.evaluate(() => {
+    const allResults = document.querySelector('.list-search-title-button');
+    return Number(allResults.textContent.replace(/\D/g, ''));
+  });
+  log(maxCount);
+
+  await scrollDown(page, 50);
+
+  await page.addStyleTag({
+    content: `
+      .c21 .landing-grid-vip {
+        display: none;
+      }
+      .c21 .pagination-load-more {
+        margin: 0 !important;
+        padding: 100px;
+        top: 100vh;
+      }
+    `,
   });
 
-  // Scrolling function
-  try {
-    await page.evaluate(async () => (
-      new Promise((resolve, reject) => {
-        try {
-          let lastScroll = 0;
-          const interval = setInterval(() => {
-            window.scrollBy(0, document.body.offsetHeight);
-            const { scrollTop } = document.documentElement;
-            if (scrollTop === lastScroll) {
-              clearInterval(interval);
-              resolve();
-            } else {
-              lastScroll = scrollTop;
-            }
-          }, 3000);
-        } catch (error) {
-          reject(error);
-        }
-      })
-    ));
-  } catch (error) {
-    log('Error while scrolling:', error);
-  }
-  log('Scrolling finished.');
+  await scrollDown(page, maxCount);
 
   await page.waitForSelector('.list-search-results');
 
   log('Extracting user data...');
   const allUserResults = await page.evaluate(() => {
-    const allUsers = document.querySelectorAll('.landing-vip.visible .content');
+    const allUsers = document.querySelectorAll('.landing-vip .content');
     return Array.from(allUsers).map((user) => {
       const name = user.querySelector('.name').textContent;
       const tag = user.querySelector('.username').textContent;
