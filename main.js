@@ -14,18 +14,29 @@ async function scrollDown(page, userCount) {
       new Promise((resolve, reject) => {
         try {
           let maxIntervals = 1000;
+          let repetitiveCount = 100;
+          let previousCount = null;
+
           const interval = setInterval(() => {
             window.scrollBy(0, document.body.offsetHeight - 100);
             const users = document.querySelectorAll('.landing-vip');
             const currentCount = users.length;
-            if (currentCount >= maxCount || maxIntervals <= 0) {
+
+            if (currentCount < maxCount && maxIntervals > 0 && repetitiveCount > 0) {
+              console.log(currentCount, repetitiveCount);
+              if (previousCount === currentCount) {
+                repetitiveCount -= 1;
+              } else {
+                repetitiveCount = 100;
+              }
+
+              maxIntervals -= 1;
+              previousCount = currentCount;
+            } else {
               clearInterval(interval);
               resolve();
-            } else {
-              console.log(currentCount);
-              maxIntervals -= 1;
             }
-          }, 2000);
+          }, 3000);
         } catch (error) {
           reject(error);
         }
@@ -103,11 +114,10 @@ Apify.main(async () => {
 
   await scrollDown(page, maxCount);
 
-  await page.waitForSelector('.list-search-results');
-
   log('Extracting user data...');
   const allUserResults = await page.evaluate(() => {
-    const allUsers = document.querySelectorAll('.landing-vip .content');
+    const allUsers = document.querySelectorAll('.landing-vip');
+    console.log(allUsers, allUsers.length);
     return Array.from(allUsers).map((user) => {
       const name = user.querySelector('.name').textContent;
       const tag = user.querySelector('.username').textContent;
@@ -129,11 +139,15 @@ Apify.main(async () => {
   log('Closing page...');
   await page.close().catch(error => log(`Error closing page: ${error}.`));
 
-  log('Extracted results: ', allUserResults);
   log('Extracted results number of users: ', allUserResults.length);
 
   log('Setting OUTPUT result...');
-  await Apify.setValue('OUTPUT', { searchResult: allUserResults });
+  const output = {
+    searchQuery,
+    resultsLength: allUserResults.length,
+    searchResult: allUserResults,
+  };
+  await Apify.setValue('OUTPUT', output);
 
   log('Closing browser window.');
   await browser.close();
