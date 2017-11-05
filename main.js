@@ -116,7 +116,6 @@ Apify.main(async () => {
   log('Extracting user data...');
   const allUserResults = await page.evaluate(() => {
     const allUsers = document.querySelectorAll('.landing-vip');
-    console.log(allUsers, allUsers.length);
     return Array.from(allUsers).map((user) => {
       const name = user.querySelector('.name').textContent;
       const tag = user.querySelector('.username').textContent;
@@ -134,11 +133,10 @@ Apify.main(async () => {
       return result;
     });
   });
+  log('Extracted results length:', allUserResults.length);
 
   log('Closing page...');
   await page.close().catch(error => log(`Error closing page: ${error}.`));
-
-  log('Extracted results number of users: ', allUserResults.length);
 
   log('Setting OUTPUT result...');
   const output = {
