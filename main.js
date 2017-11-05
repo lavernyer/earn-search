@@ -21,15 +21,13 @@ async function scrollDown(page, userCount) {
             window.scrollBy(0, document.body.offsetHeight - 100);
             const users = document.querySelectorAll('.landing-vip');
             const currentCount = users.length;
-
             if (currentCount < maxCount && maxIntervals > 0 && repetitiveCount > 0) {
-              console.log(currentCount, repetitiveCount);
+              console.log('Current count:', currentCount);
               if (previousCount === currentCount) {
                 repetitiveCount -= 1;
               } else {
                 repetitiveCount = 100;
               }
-
               maxIntervals -= 1;
               previousCount = currentCount;
             } else {
