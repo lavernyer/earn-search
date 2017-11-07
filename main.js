@@ -14,7 +14,7 @@ async function scrollDown(page, userCount) {
       new Promise((resolve, reject) => {
         try {
           let maxIntervals = 1000;
-          let repetitiveCount = 100;
+          let repetitiveCount = 50;
           let previousCount = null;
 
           const interval = setInterval(() => {
@@ -23,11 +23,11 @@ async function scrollDown(page, userCount) {
             const currentCount = users.length;
             if (currentCount < maxCount && maxIntervals > 0 && repetitiveCount > 0) {
               if (previousCount === currentCount) {
-                console.log('Countdown if over: ', repetitiveCount);
+                console.log('Timing out in:', repetitiveCount);
                 repetitiveCount -= 1;
               } else {
                 console.log('Current count:', currentCount);
-                repetitiveCount = 100;
+                repetitiveCount = 50;
               }
               maxIntervals -= 1;
               previousCount = currentCount;
@@ -98,6 +98,7 @@ Apify.main(async () => {
 
   await scrollDown(page, 50);
 
+  // Modify styles to speed up requests
   await page.addStyleTag({
     content: `
       .c21 .landing-grid-vip {
@@ -110,7 +111,6 @@ Apify.main(async () => {
       }
     `,
   });
-
   await scrollDown(page, maxCount);
 
   log('Extracting user data...');
