@@ -60,7 +60,7 @@ Apify.main(async () => {
   const { searchQuery } = input;
   const searchPageUrl = 'https://earn.com/search/';
 
-  log('Openning browser...');
+  log('Opening browser...');
   const browser = await puppeteer.launch({
     args: ['--no-sandbox'],
     headless: true,
@@ -68,7 +68,7 @@ Apify.main(async () => {
   });
   log('New browser window opened.');
 
-  log('Openning new page...');
+  log('Opening new page...');
   const page = await browser.newPage();
 
   page.on('request', (request) => {
